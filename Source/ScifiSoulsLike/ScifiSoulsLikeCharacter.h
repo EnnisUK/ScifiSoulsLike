@@ -79,6 +79,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	bool m_IFrames;
 
+	bool m_TeleportCooldown;
+
 	
 
 	// Timer Handles For Character
@@ -120,6 +122,8 @@ protected:
 	void TeleportInput();
 
 	void TeleportAbility(FVector DashDirection, FVector DashVelocity);
+
+	void TeleportCooldown();
 
 protected:
 	// APawn interface
