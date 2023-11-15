@@ -9,6 +9,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Kismet/KismetMathLibrary.h"
+
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -54,6 +56,8 @@ AScifiSoulsLikeCharacter::AScifiSoulsLikeCharacter()
 	m_Health = m_MaxHealth;
 	m_Stamina = m_MaxStamina;
 	m_Energy = m_MaxEnergy;
+
+	m_StaminaIncrease = 0.5;
 }
 
 void AScifiSoulsLikeCharacter::BeginPlay()
@@ -69,10 +73,27 @@ void AScifiSoulsLikeCharacter::BeginPlay()
 			Subsystem->AddMappingContext(DefaultMappingContext, 0);
 		}
 	}
+
+	FTimerHandle CheckVelocityTimer;
+	GetWorldTimerManager().SetTimer(CheckVelocityTimer, this, &AScifiSoulsLikeCharacter::CheckVelocity, 0.01, true);
 }
 
 //////////////////////////////////////////////////////////////////////////
 // Input
+
+void AScifiSoulsLikeCharacter::CheckVelocity()
+{
+	float VectorLength = GetVelocity().Length();
+	if (VectorLength < 200)
+	{
+		if (m_IsSprinting)
+		{
+			EndSprint();
+		}
+		
+
+	}
+}
 
 void AScifiSoulsLikeCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
@@ -91,7 +112,6 @@ void AScifiSoulsLikeCharacter::SetupPlayerInputComponent(class UInputComponent* 
 
 		//Sprinting
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Triggered, this, &AScifiSoulsLikeCharacter::StartSprint);
-		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Completed, this, &AScifiSoulsLikeCharacter::EndSprint);
 
 	}
 
@@ -135,11 +155,23 @@ void AScifiSoulsLikeCharacter::Look(const FInputActionValue& Value)
 
 void AScifiSoulsLikeCharacter::StartSprint()
 {
-	GetCharacterMovement()->MaxWalkSpeed = 1200.f;
-	
-	GetWorldTimerManager().SetTimer(m_DrainStaminaHandle, this, &AScifiSoulsLikeCharacter::DrainStamina, 0.1, true);
+	if (!m_IsSprinting)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = 1200.f;
 
-	m_IsSprinting = true;
+		GetWorldTimerManager().SetTimer(m_DrainStaminaHandle, this, &AScifiSoulsLikeCharacter::DrainStamina, 0.1, true);
+
+		GetWorldTimerManager().ClearTimer(m_RegenStaminaTimer);
+
+		GetCharacterMovement()->BrakingDecelerationWalking = 5000.f;
+
+		m_IsSprinting = true;
+	}
+	else
+	{
+		EndSprint();
+	}
+	
 }
 
 void AScifiSoulsLikeCharacter::EndSprint()
@@ -147,8 +179,10 @@ void AScifiSoulsLikeCharacter::EndSprint()
 	GetCharacterMovement()->MaxWalkSpeed = 700.f;
 	m_IsSprinting = false;
 
+	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
+
 	FTimerHandle StartRegenTimer;
-	GetWorldTimerManager().SetTimer(StartRegenTimer, this, &AScifiSoulsLikeCharacter::RegenStamina, 1.5, false);
+	GetWorldTimerManager().SetTimer(StartRegenTimer, this, &AScifiSoulsLikeCharacter::RegenStamina, 1, false);
 }
 
 void AScifiSoulsLikeCharacter::DrainStamina()
@@ -157,6 +191,8 @@ void AScifiSoulsLikeCharacter::DrainStamina()
 	{
 		m_Stamina -= 1.0f;
 		m_Stamina = FMath::Clamp(m_Stamina, 0.0f, m_MaxStamina);
+
+		
 	}
 	else
 	{
@@ -167,18 +203,18 @@ void AScifiSoulsLikeCharacter::DrainStamina()
 
 void AScifiSoulsLikeCharacter::RegenStamina()
 {
-	FTimerHandle RegenStaminaTimer;
+	
 
 	if (m_Stamina != 100 && m_IsSprinting == false)
 	{
-		m_Stamina += 1.0f;
+		m_Stamina += m_StaminaIncrease;
 		m_Stamina = FMath::Clamp(m_Stamina, 0.0f, m_MaxStamina);
 		
-		GetWorldTimerManager().SetTimer(RegenStaminaTimer, this, &AScifiSoulsLikeCharacter::RegenStamina, 0.1, true);
+		GetWorldTimerManager().SetTimer(m_RegenStaminaTimer, this, &AScifiSoulsLikeCharacter::RegenStamina, 0.1, true);
 	}
 	else
 	{
-		GetWorldTimerManager().ClearTimer(RegenStaminaTimer);
+		GetWorldTimerManager().ClearTimer(m_RegenStaminaTimer);
 	}
 }
 

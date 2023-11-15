@@ -45,21 +45,29 @@ public:
 	AScifiSoulsLikeCharacter();
 
 	// Stamina Variables
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (DisplayName = "Stamina"))
 	float m_Stamina;
 
 	float m_MaxStamina = 100.f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "Stamina Increase Amount"))
+	float m_StaminaIncrease;
+
 	bool m_IsSprinting;
 
 	// Health Variables
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (DisplayName = "Health"))
 	float m_Health;
 
 	float m_MaxHealth = 100.f;
 
 	// Energy Variables
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (DisplayName = "Energy"))
 	float m_Energy;
 
 	float m_MaxEnergy = 100.f;
+
+	
 
 	// Timer Handles For Character
 
@@ -67,6 +75,7 @@ public:
 	
 	FTimerHandle m_DrainEnergyHandle;
 
+	FTimerHandle m_RegenStaminaTimer;
 protected:
 
 	/** Called for movement input */
@@ -93,7 +102,8 @@ protected:
 	void DrainEnergy();
 
 	void RegenEnergy();
-			
+	
+	void CheckVelocity();
 
 protected:
 	// APawn interface
