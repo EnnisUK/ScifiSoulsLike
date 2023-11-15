@@ -10,6 +10,8 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Blueprint/AIBlueprintHelperLibrary.h"
+
 
 
 
@@ -95,6 +97,52 @@ void AScifiSoulsLikeCharacter::CheckVelocity()
 	}
 }
 
+void AScifiSoulsLikeCharacter::TeleportInput()
+{
+	FVector LastInputVector = GetCharacterMovement()->GetLastInputVector();
+	if (UAIBlueprintHelperLibrary::IsValidAIDirection(LastInputVector))
+	{
+		FVector Start = GetActorLocation();
+		FVector End = LastInputVector * m_TeleportDistance + Start;
+		
+		FCollisionQueryParams Params;
+		Params.AddIgnoredActor(this);
+		FHitResult Hit;
+		if (GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECollisionChannel::ECC_Visibility, Params))
+		{
+			FVector DashDirection = LastInputVector * -55.f + Hit.Location;
+			TeleportAbility(DashDirection, LastInputVector);
+		}
+		else
+		{
+			TeleportAbility(Hit.TraceEnd, LastInputVector);
+		}
+	}
+	else
+	{
+		FVector Start = GetActorLocation();
+		FVector End = GetActorForwardVector() * m_TeleportDistance + Start;
+
+		FCollisionQueryParams Params;
+		Params.AddIgnoredActor(this);
+		FHitResult Hit;
+		if (GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECollisionChannel::ECC_Visibility, Params))
+		{
+			FVector DashDirection = LastInputVector * -55.f + Hit.Location;
+			TeleportAbility(DashDirection, GetActorForwardVector());
+		}
+		else
+		{
+			TeleportAbility(Hit.TraceEnd, GetActorForwardVector());
+		}
+	}
+}
+
+void AScifiSoulsLikeCharacter::TeleportAbility(FVector DashDirection, FVector DashVelocity)
+{
+	SetActorLocation(DashDirection);
+}
+
 void AScifiSoulsLikeCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
 	// Set up action bindings
@@ -112,6 +160,8 @@ void AScifiSoulsLikeCharacter::SetupPlayerInputComponent(class UInputComponent* 
 
 		//Sprinting
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Triggered, this, &AScifiSoulsLikeCharacter::StartSprint);
+
+		EnhancedInputComponent->BindAction(TeleportAction, ETriggerEvent::Triggered, this, &AScifiSoulsLikeCharacter::TeleportInput);
 
 	}
 

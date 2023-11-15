@@ -41,6 +41,10 @@ class AScifiSoulsLikeCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* SprintAction;
 
+	// Teleport Ability
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* TeleportAction;
+
 public:
 	AScifiSoulsLikeCharacter();
 
@@ -66,6 +70,14 @@ public:
 	float m_Energy;
 
 	float m_MaxEnergy = 100.f;
+
+	//Teleport Ability Variables
+	UPROPERTY(EditAnywhere)
+	float m_TeleportDistance = 500.f;
+
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	bool m_IFrames;
 
 	
 
@@ -104,6 +116,10 @@ protected:
 	void RegenEnergy();
 	
 	void CheckVelocity();
+
+	void TeleportInput();
+
+	void TeleportAbility(FVector DashDirection, FVector DashVelocity);
 
 protected:
 	// APawn interface
