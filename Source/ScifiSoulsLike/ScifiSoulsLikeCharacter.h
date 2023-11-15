@@ -37,9 +37,35 @@ class AScifiSoulsLikeCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* LookAction;
 
+	//Sprinting Action
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* SprintAction;
+
 public:
 	AScifiSoulsLikeCharacter();
+
+	// Stamina Variables
+	float m_Stamina;
+
+	float m_MaxStamina = 100.f;
+
+	bool m_IsSprinting;
+
+	// Health Variables
+	float m_Health;
+
+	float m_MaxHealth = 100.f;
+
+	// Energy Variables
+	float m_Energy;
+
+	float m_MaxEnergy = 100.f;
+
+	// Timer Handles For Character
+
+	FTimerHandle m_DrainStaminaHandle;
 	
+	FTimerHandle m_DrainEnergyHandle;
 
 protected:
 
@@ -48,6 +74,25 @@ protected:
 
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
+
+	// Called For Starting Sprint
+	void StartSprint();
+
+	// Called For Ending Sprint
+	void EndSprint();
+
+
+	// Functions For Stamina
+
+	void DrainStamina();
+
+	void RegenStamina();
+
+	// Functions for Energy;
+
+	void DrainEnergy();
+
+	void RegenEnergy();
 			
 
 protected:
