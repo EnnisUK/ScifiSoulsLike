@@ -140,7 +140,20 @@ void AScifiSoulsLikeCharacter::TeleportInput()
 
 void AScifiSoulsLikeCharacter::TeleportAbility(FVector DashDirection, FVector DashVelocity)
 {
-	SetActorLocation(DashDirection);
+	if (!m_TeleportCooldown)
+	{
+		SetActorLocation(DashDirection);
+		m_TeleportCooldown = true;
+
+		FTimerHandle TeleportCooldownTimer;
+		GetWorldTimerManager().SetTimer(TeleportCooldownTimer, this, &AScifiSoulsLikeCharacter::TeleportCooldown, 0.5, false);
+	}
+	
+}
+
+void AScifiSoulsLikeCharacter::TeleportCooldown()
+{
+	m_TeleportCooldown = false;
 }
 
 void AScifiSoulsLikeCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
