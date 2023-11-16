@@ -7,6 +7,7 @@
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
 #include "Components/ChildActorComponent.h"
+#include "BaseWeaponClass.h"
 #include "MainCharacter.generated.h"
 
 
@@ -58,6 +59,11 @@ class AMainCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* TeleportAction;
 
+	// Melee Attack Call
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* AttackAction;
+
+
 public:
 	AMainCharacter();
 
@@ -88,11 +94,21 @@ public:
 	UPROPERTY(EditAnywhere)
 	float m_TeleportDistance = 500.f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<AActor> m_EquipWeaponClass;
+
+
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	bool m_IFrames;
 
 	bool m_TeleportCooldown;
+
+
+	// Attack Montages
+
+	UPROPERTY(EditAnywhere)
+	UAnimMontage* m_BasicAttackMontage;
 
 	
 
@@ -132,11 +148,16 @@ protected:
 	
 	void CheckVelocity();
 
+
+	// Functions For Teleport/Dodge Ability
 	void TeleportInput();
 
 	void TeleportAbility(FVector DashDirection, FVector DashVelocity);
 
 	void TeleportCooldown();
+
+	//Functions For Attacking Basic
+	void BasicAttack();
 
 protected:
 	// APawn interface

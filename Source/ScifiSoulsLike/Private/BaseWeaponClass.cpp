@@ -11,12 +11,18 @@ ABaseWeaponClass::ABaseWeaponClass()
 
 	m_WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>("Weapon Mesh");
 
+	m_AttackSpeed = 1.0f;
+
+	m_DamageAmount = 10.f;
+
 }
 
 // Called when the game starts or when spawned
 void ABaseWeaponClass::BeginPlay()
 {
 	Super::BeginPlay();
+
+	CheckLevel();
 	
 }
 
@@ -25,5 +31,26 @@ void ABaseWeaponClass::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void ABaseWeaponClass::CheckLevel()
+{
+	switch (m_CurrentWeaponLevel)
+	{
+	case EWeaponLevel::E_Level1:
+		m_AttackSpeed = 1.0f;
+		m_DamageAmount = 10.f;
+		break;
+	case EWeaponLevel::E_Level2:
+		m_AttackSpeed = 1.5f;
+		m_DamageAmount = 25.f;
+		break;
+	case EWeaponLevel::E_Level3:
+		m_AttackSpeed = 2.0f;
+		m_DamageAmount = 35.f;
+		break;
+	default:
+		break;
+	}
 }
 

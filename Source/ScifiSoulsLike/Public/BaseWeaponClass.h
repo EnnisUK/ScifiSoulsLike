@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Enums.h"
 #include "BaseWeaponClass.generated.h"
 
 UCLASS()
@@ -25,6 +26,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "AttackSpeed"))
 	float m_AttackSpeed;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enum")
+	EWeaponLevel m_CurrentWeaponLevel = EWeaponLevel::E_Level1;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -32,5 +36,8 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	UFUNCTION(BlueprintCallable)
+	void CheckLevel();
 
 };
