@@ -10,6 +10,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/GameplayStatics.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
 
 
@@ -63,6 +64,7 @@ AMainCharacter::AMainCharacter()
 
 
 	m_WeaponChildClass = CreateDefaultSubobject<UChildActorComponent>("WeaponChildClass");
+	m_WeaponChildClass->SetupAttachment(GetMesh());
 }
 
 void AMainCharacter::BeginPlay()
@@ -159,6 +161,16 @@ void AMainCharacter::TeleportCooldown()
 	m_TeleportCooldown = false;
 }
 
+void AMainCharacter::BasicAttack()
+{
+
+	
+	if (m_BasicAttackMontage)
+	{
+		PlayAnimMontage(m_BasicAttackMontage);
+	}
+}
+
 void AMainCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
 	// Set up action bindings
@@ -177,7 +189,11 @@ void AMainCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInpu
 		//Sprinting
 		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Triggered, this, &AMainCharacter::StartSprint);
 
+		//Teleport
 		EnhancedInputComponent->BindAction(TeleportAction, ETriggerEvent::Triggered, this, &AMainCharacter::TeleportInput);
+
+		//Basic Attack
+		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AMainCharacter::BasicAttack);
 
 	}
 
