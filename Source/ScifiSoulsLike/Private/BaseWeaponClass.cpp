@@ -9,7 +9,7 @@ ABaseWeaponClass::ABaseWeaponClass()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	//m_WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>("Weapon Mesh");
+	m_WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>("Weapon Mesh");
 
 	m_AttackSpeed = 1.0f;
 
