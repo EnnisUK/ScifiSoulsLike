@@ -185,7 +185,7 @@ void AMainCharacter::Lockon()
 		ActorsToIgnore.Add(this);
 		FHitResult Hit;
 
-		if (UKismetSystemLibrary::SphereTraceSingleForObjects(GetWorld(), Start, End, 125, m_ObjectType, false, ActorsToIgnore, EDrawDebugTrace::ForDuration, Hit, true))
+		if (UKismetSystemLibrary::SphereTraceSingleForObjects(GetWorld(), Start, End, 200, m_ObjectType, false, ActorsToIgnore, EDrawDebugTrace::ForDuration, Hit, true))
 		{
 			if (Hit.GetActor()->ActorHasTag("Enemy"))
 			{
@@ -194,7 +194,7 @@ void AMainCharacter::Lockon()
 	
 				
 
-				GetWorldTimerManager().SetTimer(m_TrackEnemyTimer, this, &AMainCharacter::TrackEnemy, 0.01, true);
+				GetWorldTimerManager().SetTimer(m_TrackEnemyTimer, this, &AMainCharacter::TrackEnemy, 0.001, true);
 			}
 		
 		}
