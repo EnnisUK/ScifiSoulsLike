@@ -17,8 +17,8 @@ public:
 	// Sets default values for this actor's properties
 	ABaseWeaponClass();
 
-	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite,meta = (DisplayName = "WeaponMesh"), meta = (AllowPrivateAccess = "true"))
-	//USkeletalMeshComponent* m_WeaponMesh;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite,meta = (DisplayName = "WeaponMesh"), meta = (AllowPrivateAccess = "true"))
+	USkeletalMeshComponent* m_WeaponMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "DamageVariable"))
 	float m_DamageAmount;
