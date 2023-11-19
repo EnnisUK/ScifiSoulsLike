@@ -43,6 +43,10 @@ class AMainCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* JumpAction;
 
+	// Lockon Action
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* LockonAction;
+
 	/** Move Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* MoveAction;
@@ -105,6 +109,19 @@ public:
 	bool m_TeleportCooldown;
 
 
+
+	// Target Lock System
+
+	bool m_TargetLock = false;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "Lock Distance"))
+	float m_TargetLockDistance = 500;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "ObjectType"))
+	TArray <TEnumAsByte<EObjectTypeQuery>> m_ObjectType;
+
+	AActor* m_HitTarget;
+
 	// Attack Montages
 
 	UPROPERTY(EditAnywhere)
@@ -119,6 +136,8 @@ public:
 	FTimerHandle m_DrainEnergyHandle;
 
 	FTimerHandle m_RegenStaminaTimer;
+
+	FTimerHandle m_TrackEnemyTimer;
 protected:
 
 	/** Called for movement input */
@@ -158,6 +177,15 @@ protected:
 
 	//Functions For Attacking Basic
 	void BasicAttack();
+
+
+
+
+	// Functions for locking on
+
+	void Lockon();
+
+	void TrackEnemy();
 
 protected:
 	// APawn interface
