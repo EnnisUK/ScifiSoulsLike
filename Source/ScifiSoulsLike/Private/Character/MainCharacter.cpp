@@ -176,6 +176,8 @@ void AMainCharacter::Lockon()
 	if (!m_TargetLock)
 	{
 		
+		
+
 		FVector Start = GetActorLocation();
 		FVector End = GetFollowCamera()->GetForwardVector() * m_TargetLockDistance + Start;
 		
@@ -183,7 +185,7 @@ void AMainCharacter::Lockon()
 		ActorsToIgnore.Add(this);
 		FHitResult Hit;
 
-		if (UKismetSystemLibrary::SphereTraceSingleForObjects(GetWorld(), Start, End, 125, m_ObjectType, false, ActorsToIgnore, EDrawDebugTrace::None, Hit, true))
+		if (UKismetSystemLibrary::SphereTraceSingleForObjects(GetWorld(), Start, End, 125, m_ObjectType, false, ActorsToIgnore, EDrawDebugTrace::ForDuration, Hit, true))
 		{
 			if (Hit.GetActor()->ActorHasTag("Enemy"))
 			{
@@ -202,6 +204,9 @@ void AMainCharacter::Lockon()
 		m_TargetLock = false;
 		m_HitTarget = NULL;
 		GetWorldTimerManager().ClearTimer(m_TrackEnemyTimer);
+
+		
+
 	}
 }
 
