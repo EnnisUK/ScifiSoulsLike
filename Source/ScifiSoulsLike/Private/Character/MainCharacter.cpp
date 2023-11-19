@@ -1,6 +1,7 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "Character/MainCharacter.h"
+#include "AIInterface.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
@@ -187,8 +188,10 @@ void AMainCharacter::Lockon()
 
 		if (UKismetSystemLibrary::SphereTraceSingleForObjects(GetWorld(), Start, End, 200, m_ObjectType, false, ActorsToIgnore, EDrawDebugTrace::ForDuration, Hit, true))
 		{
-			if (Hit.GetActor()->ActorHasTag("Enemy"))
+			if (IAIInterface* AIInterface = Cast<IAIInterface>(Hit.GetActor()))
 			{
+				AIInterface->Lockon();
+
 				m_TargetLock = true;
 				m_HitTarget = Hit.GetActor();
 	
