@@ -29,6 +29,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enum")
 	EWeaponLevel m_CurrentWeaponLevel = EWeaponLevel::E_Level1;
 
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FVector m_StartSocket;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FVector m_EndSocket;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float m_WeaponRadius;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

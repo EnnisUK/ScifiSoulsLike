@@ -27,4 +27,7 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void EndLockon();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void Damage(float DamageAmount);
 };

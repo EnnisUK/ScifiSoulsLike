@@ -31,6 +31,9 @@ void ABaseWeaponClass::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	m_StartSocket = m_WeaponMesh->GetSocketLocation(FName("WeaponStart"));
+	m_EndSocket = m_WeaponMesh->GetSocketLocation(FName("WeaponEnd"));
+
 }
 
 void ABaseWeaponClass::CheckLevel()

@@ -84,6 +84,9 @@ void AMainCharacter::BeginPlay()
 
 	FTimerHandle CheckVelocityTimer;
 	GetWorldTimerManager().SetTimer(CheckVelocityTimer, this, &AMainCharacter::CheckVelocity, 0.01, true);
+
+	m_WeaponActor = UGameplayStatics::GetActorOfClass(GetWorld(), m_EquipWeaponClass);
+	 m_WeaponRef = Cast<ABaseWeaponClass>(m_WeaponActor);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -164,11 +167,38 @@ void AMainCharacter::TeleportCooldown()
 
 void AMainCharacter::BasicAttack()
 {
+	if (!m_IsAttacking)
+	{
+		if (m_BasicAttackMontage)
+		{
+			PlayAnimMontage(m_BasicAttackMontage);
+		}
+	}
+	
+	
+}
+
+void AMainCharacter::WeaponLineTrace()
+{
+	if (m_IsAttacking)
+	{
 
 	
-	if (m_BasicAttackMontage)
-	{
-		PlayAnimMontage(m_BasicAttackMontage);
+		TArray<AActor*> ActorsToIgnore;
+		ActorsToIgnore.Add(this);
+		FHitResult Hit;
+
+	
+		if (UKismetSystemLibrary::SphereTraceSingleForObjects(GetWorld(), m_WeaponRef->m_StartSocket, m_WeaponRef->m_EndSocket, m_WeaponRef->m_WeaponRadius, m_ObjectType, false, ActorsToIgnore, EDrawDebugTrace::ForDuration, Hit, true))
+		{
+			if (Hit.GetActor()->Implements<UAIInterface>())
+			{
+				
+			}
+
+		}
+
+
 	}
 }
 

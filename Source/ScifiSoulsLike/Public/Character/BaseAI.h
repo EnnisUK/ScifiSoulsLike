@@ -40,4 +40,6 @@ public:
 
 	virtual void EndLockon_Implementation() override;
 
+	virtual void Damage_Implementation(float Damage) override;
+
 };
