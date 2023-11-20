@@ -38,4 +38,6 @@ public:
 
 	virtual void Lockon_Implementation() override;
 
+	virtual void EndLockon_Implementation() override;
+
 };

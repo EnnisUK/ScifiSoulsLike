@@ -174,6 +174,7 @@ void AMainCharacter::BasicAttack()
 
 void AMainCharacter::Lockon()
 {
+	FHitResult Hit;
 	if (!m_TargetLock)
 	{
 		
@@ -184,13 +185,13 @@ void AMainCharacter::Lockon()
 		
 		TArray<AActor*> ActorsToIgnore;
 		ActorsToIgnore.Add(this);
-		FHitResult Hit;
+		
 
-		if (UKismetSystemLibrary::SphereTraceSingleForObjects(GetWorld(), Start, End, 200, m_ObjectType, false, ActorsToIgnore, EDrawDebugTrace::ForDuration, Hit, true))
+		if (UKismetSystemLibrary::SphereTraceSingleForObjects(GetWorld(), Start, End, 300, m_ObjectType, false, ActorsToIgnore, EDrawDebugTrace::ForDuration, Hit, true))
 		{
-			if (IAIInterface* AIInterface = Cast<IAIInterface>(Hit.GetActor()))
+			if (Hit.GetActor()->Implements<UAIInterface>())
 			{
-				AIInterface->Lockon();
+				IAIInterface::Execute_Lockon(Hit.GetActor());
 
 				m_TargetLock = true;
 				m_HitTarget = Hit.GetActor();
@@ -200,13 +201,25 @@ void AMainCharacter::Lockon()
 				GetWorldTimerManager().SetTimer(m_TrackEnemyTimer, this, &AMainCharacter::TrackEnemy, 0.001, true);
 			}
 		
+		
 		}
 	}
 	else
 	{
+		if (IsValid(m_HitTarget))
+		{
+			IAIInterface::Execute_EndLockon(m_HitTarget);
+		}
+		else
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Black, TEXT("Hit Target Not Valid"));
+		}
+		
 		m_TargetLock = false;
-		m_HitTarget = NULL;
 		GetWorldTimerManager().ClearTimer(m_TrackEnemyTimer);
+
+		FTimerHandle ClearTargetTimer;
+		GetWorldTimerManager().SetTimer(ClearTargetTimer, this, &AMainCharacter::ClearHitTarget, 0.1, false);
 
 		
 
@@ -221,6 +234,11 @@ void AMainCharacter::TrackEnemy()
 		FRotator EnemyRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), m_HitTarget->GetActorLocation());
 		GetController()->SetControlRotation(EnemyRotation);
 	}
+}
+
+void AMainCharacter::ClearHitTarget()
+{
+	m_HitTarget = NULL;
 }
 
 void AMainCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)

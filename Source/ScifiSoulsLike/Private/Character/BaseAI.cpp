@@ -35,21 +35,27 @@ void ABaseAI::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 }
 
-void ABaseAI::Show_HideDecal(UDecalComponent* LockedOnDecal, bool ShouldHide)
+void ABaseAI::Show_HideDecal(UDecalComponent* LockedOnDecal, bool ShouldShow)
 {
-	if (!ShouldHide)
+	if (ShouldShow)
 	{
-		LockedOnDecal->SetVisibility(true);
+		LockedOnDecal->SetHiddenInGame(false);
 	}
 	else
 	{
-		LockedOnDecal->SetVisibility(false);
+		LockedOnDecal->SetHiddenInGame(true);
 	}
 }
 
 void ABaseAI::Lockon_Implementation()
 {
-
 }
+
+void ABaseAI::EndLockon_Implementation()
+{
+}
+
+
+
 
 
