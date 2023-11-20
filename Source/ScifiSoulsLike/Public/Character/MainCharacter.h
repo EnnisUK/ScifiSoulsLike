@@ -179,6 +179,14 @@ protected:
 	//Functions For Attacking Basic
 	void BasicAttack();
 
+	void WeaponLineTrace();
+
+	bool m_IsAttacking;
+
+	AActor* m_WeaponActor;
+
+	ABaseWeaponClass* m_WeaponRef;
+
 
 
 

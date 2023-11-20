@@ -55,6 +55,10 @@ void ABaseAI::EndLockon_Implementation()
 {
 }
 
+void ABaseAI::Damage_Implementation(float Damage)
+{
+}
+
 
 
 
