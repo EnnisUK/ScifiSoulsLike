@@ -24,4 +24,7 @@ class SCIFISOULSLIKE_API IAIInterface
 public:
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void Lockon();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void EndLockon();
 };

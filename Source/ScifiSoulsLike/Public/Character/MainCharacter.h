@@ -119,6 +119,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "ObjectType"))
 	TArray <TEnumAsByte<EObjectTypeQuery>> m_ObjectType;
 
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	AActor* m_HitTarget;
 
 	// Attack Montages
@@ -185,6 +187,8 @@ protected:
 	void Lockon();
 
 	void TrackEnemy();
+
+	void ClearHitTarget();
 
 protected:
 	// APawn interface
