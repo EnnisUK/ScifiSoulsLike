@@ -139,6 +139,8 @@ public:
 	FTimerHandle m_RegenStaminaTimer;
 
 	FTimerHandle m_TrackEnemyTimer;
+
+	FTimerHandle m_WeaponTraceTimer;
 protected:
 
 	/** Called for movement input */
@@ -181,6 +183,7 @@ protected:
 
 	void WeaponLineTrace();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attacks")
 	bool m_IsAttacking;
 
 	AActor* m_WeaponActor;
