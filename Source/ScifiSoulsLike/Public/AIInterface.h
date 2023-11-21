@@ -30,4 +30,7 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
 	void Damage(float DamageAmount);
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void Death();
 };

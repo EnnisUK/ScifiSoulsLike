@@ -24,7 +24,7 @@ public:
 	float m_DamageAmount;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "AttackSpeed"))
-	float m_AttackSpeed;
+	float m_AttackSpeed = 1.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enum")
 	EWeaponLevel m_CurrentWeaponLevel = EWeaponLevel::E_Level1;

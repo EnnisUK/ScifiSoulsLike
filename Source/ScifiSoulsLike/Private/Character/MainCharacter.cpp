@@ -171,8 +171,12 @@ void AMainCharacter::BasicAttack()
 	{
 		if (m_BasicAttackMontage)
 		{
+			m_IsAttacking = true;
 			PlayAnimMontage(m_BasicAttackMontage);
+
+			GetWorldTimerManager().SetTimer(m_WeaponTraceTimer, this, &AMainCharacter::WeaponLineTrace, 0.05, true);
 		}
+		
 	}
 	
 	
@@ -188,17 +192,28 @@ void AMainCharacter::WeaponLineTrace()
 		ActorsToIgnore.Add(this);
 		FHitResult Hit;
 
-	
-		if (UKismetSystemLibrary::SphereTraceSingleForObjects(GetWorld(), m_WeaponRef->m_StartSocket, m_WeaponRef->m_EndSocket, m_WeaponRef->m_WeaponRadius, m_ObjectType, false, ActorsToIgnore, EDrawDebugTrace::ForDuration, Hit, true))
+		if (m_WeaponRef)
 		{
-			if (Hit.GetActor()->Implements<UAIInterface>())
+			float DamageAmount = m_WeaponRef->m_DamageAmount;
+
+			if (UKismetSystemLibrary::SphereTraceSingleForObjects(GetWorld(), m_WeaponRef->m_StartSocket, m_WeaponRef->m_EndSocket, m_WeaponRef->m_WeaponRadius, m_ObjectType, false, ActorsToIgnore, EDrawDebugTrace::ForDuration, Hit, true))
 			{
-				
+				if (Hit.GetActor()->Implements<UAIInterface>())
+				{
+					IAIInterface::Execute_Damage(Hit.GetActor(), m_WeaponRef->m_DamageAmount);
+				}
+
 			}
 
 		}
-
-
+		else
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, TEXT("Weapon Cast Failed"));
+		}
+	}
+	else
+	{
+		GetWorldTimerManager().ClearTimer(m_WeaponTraceTimer);
 	}
 }
 
@@ -261,6 +276,7 @@ void AMainCharacter::TrackEnemy()
 	if (m_HitTarget)
 	{
 		
+
 		FRotator EnemyRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), m_HitTarget->GetActorLocation());
 		GetController()->SetControlRotation(EnemyRotation);
 	}

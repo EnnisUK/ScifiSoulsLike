@@ -13,7 +13,7 @@ ABaseWeaponClass::ABaseWeaponClass()
 
 	m_AttackSpeed = 1.0f;
 
-	m_DamageAmount = 10.f;
+	
 
 }
 
@@ -38,22 +38,6 @@ void ABaseWeaponClass::Tick(float DeltaTime)
 
 void ABaseWeaponClass::CheckLevel()
 {
-	switch (m_CurrentWeaponLevel)
-	{
-	case EWeaponLevel::E_Level1:
-		m_AttackSpeed = 1.0f;
-		m_DamageAmount = 10.f;
-		break;
-	case EWeaponLevel::E_Level2:
-		m_AttackSpeed = 1.5f;
-		m_DamageAmount = 25.f;
-		break;
-	case EWeaponLevel::E_Level3:
-		m_AttackSpeed = 2.0f;
-		m_DamageAmount = 35.f;
-		break;
-	default:
-		break;
-	}
+
 }
 
