@@ -3,6 +3,8 @@
 
 #include "Character/BaseAI.h"
 #include "Components/DecalComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
+
 
 // Sets default values
 ABaseAI::ABaseAI()
@@ -63,6 +65,16 @@ void ABaseAI::TakeDamage(float Damage)
 	
 	
 
+}
+
+void ABaseAI::DeathFunction()
+{
+	GetCharacterMovement()->DisableMovement();
+
+	if (m_DeathMontage)
+	{
+		PlayAnimMontage(m_DeathMontage);
+	}
 }
 
 void ABaseAI::Lockon_Implementation()

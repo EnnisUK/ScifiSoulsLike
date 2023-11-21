@@ -32,6 +32,10 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (DisplayName = "MaxHealth"))
 	float m_MaxHealth = 100;
 
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "Death Montage"))
+	UAnimMontage* m_DeathMontage;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -48,6 +52,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void TakeDamage(float Damage);
+
+	UFUNCTION(BlueprintCallable)
+	void DeathFunction();
 
 
 	virtual void Lockon_Implementation() override;
