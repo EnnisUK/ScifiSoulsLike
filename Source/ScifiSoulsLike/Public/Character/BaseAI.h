@@ -14,6 +14,9 @@ class SCIFISOULSLIKE_API ABaseAI : public ACharacter, public IAIInterface
 {
 	GENERATED_BODY()
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"), meta = (DisplayName = "WeaponChildClass"))
+	UChildActorComponent* m_WeaponChildClass;
+
 public:
 	// Sets default values for this character's properties
 	ABaseAI();
@@ -24,6 +27,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "IsTakingDamage"))
 	bool m_IsTakingDamage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "IsTakingDamage"))
+	bool m_HasWeapon;
 
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (DisplayName = "CurrentHealth"))
@@ -64,5 +70,7 @@ public:
 	virtual void Damage_Implementation(float Damage) override;
 
 	virtual void Death_Implementation() override;
+
+	FORCEINLINE class UChildActorComponent* GetWeaponChild() const { return m_WeaponChildClass; }
 
 };
