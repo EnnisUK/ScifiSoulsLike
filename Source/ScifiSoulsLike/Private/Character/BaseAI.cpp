@@ -14,6 +14,8 @@ ABaseAI::ABaseAI()
 
 	m_CurrentHealth = m_MaxHealth;
 
+	m_WeaponChildClass = CreateDefaultSubobject<UChildActorComponent>("WeaponChildClass");
+
 }
 
 // Called when the game starts or when spawned
