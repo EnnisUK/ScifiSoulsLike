@@ -73,7 +73,7 @@ class AMainCharacter : public ACharacter, public IAbilitySystemInterface
 
 	// Teleport Ability
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* TeleportAction;
+	class UInputAction* RollAction;
 
 	// Melee Attack Call
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -82,9 +82,6 @@ class AMainCharacter : public ACharacter, public IAbilitySystemInterface
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* BlockAction;
 
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	class UInputAction* RollAction;
 
 public:
 	AMainCharacter();
@@ -118,7 +115,7 @@ public:
 
 	//Teleport Ability Variables
 	UPROPERTY(EditAnywhere)
-	float m_TeleportDistance = 500.f;
+	float m_RollDistance = 500.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<AActor> m_EquipWeaponClass;
@@ -131,7 +128,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	bool m_IFrames;
 
-	bool m_TeleportCooldown;
+	bool m_RollCooldown;
 
 
 
@@ -176,7 +173,6 @@ protected:
 	void Look(const FInputActionValue& Value);
 
 
-	void Roll();
 
 
 	// Functions For Stamina
@@ -189,11 +185,11 @@ protected:
 
 
 	// Functions For Teleport/Dodge Ability
-	void TeleportInput();
+	void RollInput();
 
-	void TeleportAbility(FVector DashDirection, FVector DashVelocity);
+	void RollAbility();
 
-	void TeleportCooldown();
+	void RollCooldown();
 
 	//Functions For Attacking Basic
 	void BasicAttack();

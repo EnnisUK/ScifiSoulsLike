@@ -38,7 +38,7 @@ AMainCharacter::AMainCharacter()
 
 	// Note: For faster iteration times these variables, and many more, can be tweaked in the Character Blueprint
 	// instead of recompiling to adjust them
-	GetCharacterMovement()->JumpZVelocity = 700.f;
+	GetCharacterMovement()->JumpZVelocity = 500.f;
 	GetCharacterMovement()->AirControl = 0.5f;
 	GetCharacterMovement()->MaxWalkSpeed = 700.f;
 	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
@@ -167,63 +167,21 @@ void AMainCharacter::CheckVelocity()
 	}
 }
 
-void AMainCharacter::TeleportInput()
+void AMainCharacter::RollInput()
 {
-	FVector LastInputVector = GetCharacterMovement()->GetLastInputVector();
-	if (UAIBlueprintHelperLibrary::IsValidAIDirection(LastInputVector))
-	{
-		FVector Start = GetActorLocation();
-		FVector End = LastInputVector * m_TeleportDistance + Start;
-		
-		FCollisionQueryParams Params;
-		Params.AddIgnoredActor(this);
-		FHitResult Hit;
-		if (GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECollisionChannel::ECC_Visibility, Params))
-		{
-			FVector DashDirection = LastInputVector * -55.f + Hit.Location;
-			TeleportAbility(DashDirection, LastInputVector);
-		}
-		else
-		{
-			TeleportAbility(Hit.TraceEnd, LastInputVector);
-		}
-	}
-	else
-	{
-		FVector Start = GetActorLocation();
-		FVector End = GetActorForwardVector() * m_TeleportDistance + Start;
-
-		FCollisionQueryParams Params;
-		Params.AddIgnoredActor(this);
-		FHitResult Hit;
-		if (GetWorld()->LineTraceSingleByChannel(Hit, Start, End, ECollisionChannel::ECC_Visibility, Params))
-		{
-			FVector DashDirection = LastInputVector * -55.f + Hit.Location;
-			TeleportAbility(DashDirection, GetActorForwardVector());
-		}
-		else
-		{
-			TeleportAbility(Hit.TraceEnd, GetActorForwardVector());
-		}
-	}
-}
-
-void AMainCharacter::TeleportAbility(FVector DashDirection, FVector DashVelocity)
-{
-	if (!m_TeleportCooldown)
-	{
-		SetActorLocation(DashDirection);
-		m_TeleportCooldown = true;
-
-		FTimerHandle TeleportCooldownTimer;
-		GetWorldTimerManager().SetTimer(TeleportCooldownTimer, this, &AMainCharacter::TeleportCooldown, 0.5, false);
-	}
+	
 	
 }
 
-void AMainCharacter::TeleportCooldown()
+void AMainCharacter::RollAbility()
 {
-	m_TeleportCooldown = false;
+	
+	
+}
+
+void AMainCharacter::RollCooldown()
+{
+	
 }
 
 void AMainCharacter::BasicAttack()
@@ -284,12 +242,14 @@ void AMainCharacter::Block()
 {
 	if (m_IsGrounded)
 	{
-
+		
 	}
 }
 
 void AMainCharacter::BlockFinish()
 {
+	
+
 }
 
 void AMainCharacter::Lockon()
@@ -367,9 +327,6 @@ void AMainCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInpu
 	// Set up action bindings
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent)) {
 		
-		//Jumping
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &ACharacter::Jump);
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 
 		//Moving
 		EnhancedInputComponent->BindAction(MoveAction, ETriggerEvent::Triggered, this, &AMainCharacter::Move);
@@ -380,8 +337,8 @@ void AMainCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInpu
 		//Sprinting
 		//EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Triggered, this, &AMainCharacter::StartSprint);
 
-		//Teleport
-		EnhancedInputComponent->BindAction(TeleportAction, ETriggerEvent::Triggered, this, &AMainCharacter::TeleportInput);
+		//Roll
+		EnhancedInputComponent->BindAction(RollAction, ETriggerEvent::Triggered, this, &AMainCharacter::RollInput);
 
 		//Basic Attack
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AMainCharacter::BasicAttack);
@@ -394,8 +351,7 @@ void AMainCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInpu
 		//BlockFinish
 		EnhancedInputComponent->BindAction(BlockAction, ETriggerEvent::Completed, this, &AMainCharacter::BlockFinish);
 
-		//Roll Input
-		EnhancedInputComponent->BindAction(RollAction, ETriggerEvent::Triggered, this, &AMainCharacter::Roll);
+		
 
 	}
 
@@ -440,6 +396,8 @@ void AMainCharacter::Look(const FInputActionValue& Value)
 	}
 
 }
+
+
 
 
 
