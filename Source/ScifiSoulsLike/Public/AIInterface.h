@@ -6,6 +6,10 @@
 #include "UObject/Interface.h"
 #include "AIInterface.generated.h"
 
+
+
+
+
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
 class UAIInterface : public UInterface

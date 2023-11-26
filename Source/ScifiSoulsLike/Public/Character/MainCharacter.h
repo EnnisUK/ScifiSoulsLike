@@ -5,15 +5,19 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "GameplayTagContainer.h"
+#include <GameplayEffectTypes.h>
+#include "AbilitySystemInterface.h"
 #include "InputActionValue.h"
 #include "Components/ChildActorComponent.h"
+#include "Systems/SoulsLikeAttributeSet.h"
 #include "BaseWeaponClass.h"
 #include "MainCharacter.generated.h"
 
 
 
 UCLASS(config=Game)
-class AMainCharacter : public ACharacter
+class AMainCharacter : public ACharacter, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
@@ -33,6 +37,15 @@ class AMainCharacter : public ACharacter
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
+
+	//Ability System
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Abilites, meta = (AllowPrivateAccess = "true"))
+	class UAbilitySystemComponent* m_AbilitySystemComponent;
+
+
+	UPROPERTY()
+	class USoulsLikeAttributeSet* m_Attributes;
+
 	
 	/** MappingContext */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -66,32 +79,42 @@ class AMainCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* AttackAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* BlockAction;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* RollAction;
 
 public:
 	AMainCharacter();
 
+	// Overriden from IAbilitySystemInterface
+	UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+
+
+
 	// Stamina Variables
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (DisplayName = "Stamina"))
-	float m_Stamina;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attributes")
+	int m_MaxStamina = 100;
 
-	float m_MaxStamina = 100.f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "Stamina Increase Amount"))
-	float m_StaminaIncrease;
 
 	bool m_IsSprinting;
-
-	// Health Variables
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (DisplayName = "Health"))
-	float m_Health;
-
-	float m_MaxHealth = 100.f;
+	
+	//Health Variable
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attributes")
+	int m_MaxHealth = 100;
 
 	// Energy Variables
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta = (DisplayName = "Energy"))
-	float m_Energy;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attributes")
+	int m_MaxMana = 100;
 
-	float m_MaxEnergy = 100.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attributes")
+	int m_MaxStat = 99;
+
 
 	//Teleport Ability Variables
 	UPROPERTY(EditAnywhere)
@@ -99,6 +122,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<AActor> m_EquipWeaponClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (DisplayName = "Grounded"))
+	bool m_IsGrounded;
 
 
 
@@ -149,24 +175,15 @@ protected:
 	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
 
-	// Called For Starting Sprint
-	void StartSprint();
 
-	// Called For Ending Sprint
-	void EndSprint();
+	void Roll();
 
 
 	// Functions For Stamina
 
-	void DrainStamina();
-
-	void RegenStamina();
+	
 
 	// Functions for Energy;
-
-	void DrainEnergy();
-
-	void RegenEnergy();
 	
 	void CheckVelocity();
 
@@ -182,6 +199,11 @@ protected:
 	void BasicAttack();
 
 	void WeaponLineTrace();
+
+	void Block();
+
+	void BlockFinish();
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attacks")
 	bool m_IsAttacking;
@@ -215,5 +237,17 @@ public:
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
 	FORCEINLINE class UChildActorComponent* GetWeaponChild () const { return m_WeaponChildClass; }
+
+	virtual void PossessedBy(AController* NewController) override;
+	virtual void OnRep_PlayerState() override;
+	virtual void InitializeAttributes();
+	virtual void GiveDefaultAbilities();
+
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Abilites")
+	TSubclassOf<class UGameplayEffect> DefaultAttributeEffect;
+
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "Abilites")
+	TArray<TSubclassOf<class UGameplayAbility>> DefaultAbilites;
 };
 
