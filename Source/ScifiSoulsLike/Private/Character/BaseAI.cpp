@@ -53,31 +53,6 @@ void ABaseAI::Show_HideDecal(UDecalComponent* LockedOnDecal, bool ShouldShow)
 	}
 }
 
-void ABaseAI::TakeDamage(float Damage)
-{
-	m_CurrentHealth = FMath::Clamp(m_CurrentHealth -= Damage, 0.0, m_MaxHealth);
-
-	if (m_CurrentHealth == 0)
-	{
-		IAIInterface::Execute_Death(this);
-	}
-	
-
-		
-	
-	
-
-}
-
-void ABaseAI::DeathFunction()
-{
-	GetCharacterMovement()->DisableMovement();
-
-	if (m_DeathMontage)
-	{
-		PlayAnimMontage(m_DeathMontage);
-	}
-}
 
 void ABaseAI::Lockon_Implementation()
 {

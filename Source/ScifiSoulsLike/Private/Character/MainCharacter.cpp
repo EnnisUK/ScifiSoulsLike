@@ -7,6 +7,8 @@
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
+#include "AbilitySystemComponent.h"
+#include "Systems/SoulsLikeAttributeSet.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
@@ -57,15 +59,72 @@ AMainCharacter::AMainCharacter()
 
 	// Set Character Variables
 
-	m_Health = m_MaxHealth;
-	m_Stamina = m_MaxStamina;
-	m_Energy = m_MaxEnergy;
+	m_AbilitySystemComponent = CreateDefaultSubobject<UAbilitySystemComponent>("AbilitySystemComp");
+	m_AbilitySystemComponent->SetIsReplicated(true);
+	m_AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
 
-	m_StaminaIncrease = 0.5;
+	m_Attributes = CreateDefaultSubobject<USoulsLikeAttributeSet>("Attributes");
+
 
 
 	m_WeaponChildClass = CreateDefaultSubobject<UChildActorComponent>("WeaponChildClass");
 	m_WeaponChildClass->SetupAttachment(GetMesh());
+}
+
+
+
+void AMainCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	if (m_AbilitySystemComponent)
+	{
+		m_AbilitySystemComponent->InitAbilityActorInfo(this, this);
+
+		InitializeAttributes();
+		GiveDefaultAbilities();
+	}
+}
+
+void AMainCharacter::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+
+	if (m_AbilitySystemComponent)
+	{
+		m_AbilitySystemComponent->InitAbilityActorInfo(this, this);
+
+		InitializeAttributes();
+	}
+}
+
+void AMainCharacter::InitializeAttributes()
+{
+	if (m_AbilitySystemComponent && DefaultAttributeEffect)
+	{
+		FGameplayEffectContextHandle EffectContext = m_AbilitySystemComponent->MakeEffectContext();
+		EffectContext.AddSourceObject(this);
+		FGameplayEffectSpecHandle SpecHandle = m_AbilitySystemComponent->MakeOutgoingSpec(DefaultAttributeEffect, 1, EffectContext);
+
+		if (SpecHandle.IsValid())
+		{
+			FActiveGameplayEffectHandle GEHandle = m_AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+		}
+	}
+}
+
+void AMainCharacter::GiveDefaultAbilities()
+{
+	if (HasAuthority() && m_AbilitySystemComponent)
+	{
+		for (TSubclassOf<UGameplayAbility>& StartupAbility : DefaultAbilites)
+			m_AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(StartupAbility.GetDefaultObject(), 1, 0));
+	}
+}
+
+UAbilitySystemComponent* AMainCharacter::GetAbilitySystemComponent() const
+{
+	return m_AbilitySystemComponent;
 }
 
 void AMainCharacter::BeginPlay()
@@ -89,6 +148,8 @@ void AMainCharacter::BeginPlay()
 	 m_WeaponRef = Cast<ABaseWeaponClass>(m_WeaponActor);
 }
 
+
+
 //////////////////////////////////////////////////////////////////////////
 // Input
 
@@ -99,7 +160,7 @@ void AMainCharacter::CheckVelocity()
 	{
 		if (m_IsSprinting)
 		{
-			EndSprint();
+			return;
 		}
 		
 
@@ -167,19 +228,21 @@ void AMainCharacter::TeleportCooldown()
 
 void AMainCharacter::BasicAttack()
 {
-	if (!m_IsAttacking)
+	if (m_IsGrounded)
 	{
-		if (m_BasicAttackMontage)
+		if (!m_IsAttacking)
 		{
-			m_IsAttacking = true;
-			PlayAnimMontage(m_BasicAttackMontage);
+			if (m_BasicAttackMontage)
+			{
+				m_IsAttacking = true;
+				PlayAnimMontage(m_BasicAttackMontage);
 
-			GetWorldTimerManager().SetTimer(m_WeaponTraceTimer, this, &AMainCharacter::WeaponLineTrace, 0.05, true);
-		}
+				GetWorldTimerManager().SetTimer(m_WeaponTraceTimer, this, &AMainCharacter::WeaponLineTrace, 0.05, true);
+			}
 		
+		}
+	
 	}
-	
-	
 }
 
 void AMainCharacter::WeaponLineTrace()
@@ -215,6 +278,18 @@ void AMainCharacter::WeaponLineTrace()
 	{
 		GetWorldTimerManager().ClearTimer(m_WeaponTraceTimer);
 	}
+}
+
+void AMainCharacter::Block()
+{
+	if (m_IsGrounded)
+	{
+
+	}
+}
+
+void AMainCharacter::BlockFinish()
+{
 }
 
 void AMainCharacter::Lockon()
@@ -303,7 +378,7 @@ void AMainCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInpu
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &AMainCharacter::Look);
 
 		//Sprinting
-		EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Triggered, this, &AMainCharacter::StartSprint);
+		//EnhancedInputComponent->BindAction(SprintAction, ETriggerEvent::Triggered, this, &AMainCharacter::StartSprint);
 
 		//Teleport
 		EnhancedInputComponent->BindAction(TeleportAction, ETriggerEvent::Triggered, this, &AMainCharacter::TeleportInput);
@@ -313,6 +388,14 @@ void AMainCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInpu
 
 		//Lockon
 		EnhancedInputComponent->BindAction(LockonAction, ETriggerEvent::Triggered, this, &AMainCharacter::Lockon);
+
+		//Block
+		EnhancedInputComponent->BindAction(BlockAction, ETriggerEvent::Triggered, this, &AMainCharacter::Block);
+		//BlockFinish
+		EnhancedInputComponent->BindAction(BlockAction, ETriggerEvent::Completed, this, &AMainCharacter::BlockFinish);
+
+		//Roll Input
+		EnhancedInputComponent->BindAction(RollAction, ETriggerEvent::Triggered, this, &AMainCharacter::Roll);
 
 	}
 
@@ -358,70 +441,9 @@ void AMainCharacter::Look(const FInputActionValue& Value)
 
 }
 
-void AMainCharacter::StartSprint()
-{
-	if (!m_IsSprinting)
-	{
-		GetCharacterMovement()->MaxWalkSpeed = 1200.f;
 
-		GetWorldTimerManager().SetTimer(m_DrainStaminaHandle, this, &AMainCharacter::DrainStamina, 0.1, true);
 
-		GetWorldTimerManager().ClearTimer(m_RegenStaminaTimer);
 
-		GetCharacterMovement()->BrakingDecelerationWalking = 5000.f;
-
-		m_IsSprinting = true;
-	}
-	else
-	{
-		EndSprint();
-	}
-	
-}
-
-void AMainCharacter::EndSprint()
-{
-	GetCharacterMovement()->MaxWalkSpeed = 700.f;
-	m_IsSprinting = false;
-
-	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
-
-	FTimerHandle StartRegenTimer;
-	GetWorldTimerManager().SetTimer(StartRegenTimer, this, &AMainCharacter::RegenStamina, 1, false);
-}
-
-void AMainCharacter::DrainStamina()
-{
-	if (m_Stamina != 0 && m_IsSprinting == true)
-	{
-		m_Stamina -= 1.0f;
-		m_Stamina = FMath::Clamp(m_Stamina, 0.0f, m_MaxStamina);
-
-		
-	}
-	else
-	{
-		GetWorldTimerManager().ClearTimer(m_DrainStaminaHandle);
-		EndSprint();
-	}
-}
-
-void AMainCharacter::RegenStamina()
-{
-	
-
-	if (m_Stamina != 100 && m_IsSprinting == false)
-	{
-		m_Stamina += m_StaminaIncrease;
-		m_Stamina = FMath::Clamp(m_Stamina, 0.0f, m_MaxStamina);
-		
-		GetWorldTimerManager().SetTimer(m_RegenStaminaTimer, this, &AMainCharacter::RegenStamina, 0.1, true);
-	}
-	else
-	{
-		GetWorldTimerManager().ClearTimer(m_RegenStaminaTimer);
-	}
-}
 
 
 

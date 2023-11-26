@@ -17,6 +17,14 @@ class SCIFISOULSLIKE_API ABaseAI : public ACharacter, public IAIInterface
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"), meta = (DisplayName = "WeaponChildClass"))
 	UChildActorComponent* m_WeaponChildClass;
 
+
+	//Ability System
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Abilites, meta = (AllowPrivateAccess = "true"))
+	class UAbilitySystemComponent* m_AbilitySystemComponent;
+
+	UPROPERTY()
+	class USoulsLikeAttributeSet* m_Attributes;
+
 public:
 	// Sets default values for this character's properties
 	ABaseAI();
@@ -55,12 +63,6 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void Show_HideDecal(UDecalComponent* LockedOnDecal, bool ShouldHide);
-
-	UFUNCTION(BlueprintCallable)
-	void TakeDamage(float Damage);
-
-	UFUNCTION(BlueprintCallable)
-	void DeathFunction();
 
 
 	virtual void Lockon_Implementation() override;
